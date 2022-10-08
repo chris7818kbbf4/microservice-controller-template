@@ -21,6 +21,11 @@ public abstract class BaseController<TModel, TDto>: ControllerBase
     {
         var result = await _baseRepository.GetById(id);
 
+        if (result is null)
+        {
+            return NotFound();
+        }
+
         var dto = _mapper.Map<TDto>(result);
 
         return Ok(dto);
