@@ -6,7 +6,7 @@ public interface IBaseRepository<TModel>
     
     public Task<TModel> Add(TModel model);
     
-    public TModel Update(TModel model);
+    public Task<TModel> Update(TModel model);
     
     Task Delete(Guid id);
 }

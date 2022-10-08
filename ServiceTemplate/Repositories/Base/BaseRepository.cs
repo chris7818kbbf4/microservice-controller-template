@@ -4,7 +4,7 @@ using ServiceTemplate.DbContexts;
 
 namespace ServiceTemplate.Repositories.Base;
 
-public abstract class BaseRepository<TModel>: IBaseRepository<TModel> where TModel : class, IIdentity
+public abstract class BaseRepository<TModel> : IBaseRepository<TModel> where TModel : class, IIdentity
 {
     protected readonly ApplicationDbContext _context;
 
@@ -12,7 +12,7 @@ public abstract class BaseRepository<TModel>: IBaseRepository<TModel> where TMod
     {
         _context = context;
     }
-    
+
     public async Task<TModel?> GetById(Guid id)
     {
         return await _context.Set<TModel>().FirstOrDefaultAsync(x => x.Id == id);
@@ -22,12 +22,16 @@ public abstract class BaseRepository<TModel>: IBaseRepository<TModel> where TMod
     {
         var result = await _context.Set<TModel>().AddAsync(model);
 
+        await _context.SaveChangesAsync();
+
         return result.Entity;
     }
 
-    public TModel Update(TModel model)
+    public async Task<TModel> Update(TModel model)
     {
         var result = _context.Set<TModel>().Update(model);
+
+        await _context.SaveChangesAsync();
 
         return result.Entity;
     }
@@ -35,9 +39,9 @@ public abstract class BaseRepository<TModel>: IBaseRepository<TModel> where TMod
     public async Task Delete(Guid id)
     {
         var entity = await GetById(id);
-        if (entity != null)
-        {
-            _context.Set<TModel>().Remove(entity);
-        }
+        if (entity is null) return;
+
+        _context.Set<TModel>().Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }
